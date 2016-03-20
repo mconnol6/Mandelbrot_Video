@@ -1,0 +1,7 @@
+*.o
+ffmpeg
+ffplay
+*.bmp
+mandel
+mandelmovie
+*.txt
