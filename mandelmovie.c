@@ -13,7 +13,7 @@
 #include <ctype.h>
 
 void execute(char** argv);
-int wait_shell();
+void wait_shell();
 void print_error();
 int check_if_int(char *t);
 void convert_to_tokens(char **t, char *command);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 	int n = atoi(argv[1]);
 
 	//number must be less than or equal to 50
-	if ( n > 50) {
+	if ( n > 5) {
 		printf("mandelmovie: usage: mandelmovie <num processes>, <num processes> must be an integer\n");
 		exit(1);
 	}
@@ -104,7 +104,6 @@ void convert_to_tokens(char **t, char *command) {
 //execute command in argv
 void execute(char **argv) {
 	pid_t pid;
-	int status;
 
 	//fork parent process
 	if ((pid = fork()) < 0) {
@@ -125,7 +124,7 @@ void execute(char **argv) {
 
 //waits for a process to finish
 //return value is the status
-int wait_shell() {
+void wait_shell() {
 	int status, return_value;
 
 	return_value = wait(&status);
@@ -146,8 +145,6 @@ int wait_shell() {
 		printf("mandelmovie: process %i exited abnormally with signal %i: %s\n", return_value, status, strsignal(WTERMSIG(status)));
 		exit(1);
 	}
-
-	return return_value;
 }
 
 //function for printing error messages
