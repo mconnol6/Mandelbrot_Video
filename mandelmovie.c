@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	//check if the second input argument is an integer
-	if (!check_if_int(argv[1])) {
+	if (!(check_if_int(argv[1]))) {
 		printf("mandelmovie: usage: mandelmovie <num processes>, <num processes> must be an integer\n");
 		exit(1);
 	}
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 	int n = atoi(argv[1]);
 
 	//number must be less than or equal to 50
-	if ( n > 5) {
+	if ( n > 50) {
 		printf("mandelmovie: usage: mandelmovie <num processes>, <num processes> must be an integer\n");
 		exit(1);
 	}
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	//while less than 50 process have started, wait for a process to finish. Once it has, start the next process
-	while (count < 10) {
+	while (count < 50) {
 		wait_shell();
 		start_process(count);
 		count++;
