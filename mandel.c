@@ -9,8 +9,6 @@
 #include <string.h>
 #include <pthread.h>
 
-int sum; //data shared by threads
-
 typedef struct {
 	struct bitmap *bm;
    	double xmin;
@@ -104,19 +102,30 @@ int main( int argc, char *argv[] )
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
-	//set up pthreads
-//	pthread_t tid; //thread identifier
-//	pthread_attr_t attr; //set of thread attributes
-//
-//	pthread_attr_init(&attr); //get default attributes
-//	pthread_create(&tid, &attr, runner, nthreads);
-//	pthread_join(tid, NULL);
+	//thread array
+	pthread_t thr[nthreads];
+	thread_args thr_data[nthreads];
 
-	// Compute the Mandelbrot image
-	//
-	// create nthreads threads using pthread_create
-	thread_args s = {bm,xcenter-scale,xcenter+scale,ycenter-scale,ycenter+scale,max};
-	compute_image(&s);
+	//create threads
+	int i; //iterator
+	for (i=0; i<nthreads; i++) {
+		//create struct
+		thread_args s = {bm,xcenter-scale,xcenter+scale,ycenter-scale,ycenter+scale,max};
+
+		//put in data array
+		thr_data[i] = s;
+
+		//create threads and check to see if they were created successfully
+		if (pthread_create(&thr[i], NULL, compute_image, &thr_data[i])) {
+			fprintf(stderr,"mandel: pthread_create: %s\n",strerror(errno));
+			exit(1);
+		}
+	}
+
+	for (i=0; i<nthreads; i++) {
+		pthread_join(thr[i], NULL);
+	}
+
 
 	// Save the image in the stated file.
 	if(!bitmap_save(bm,outfile)) {
