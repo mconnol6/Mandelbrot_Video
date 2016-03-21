@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <ctype.h>
+#include <math.h>
 
 void execute(char** argv);
 void wait_shell();
@@ -64,15 +65,24 @@ int main(int argc, char *argv[]) {
 	exit(0);
 }
 
-//start process number n
+//start process number i
 void start_process(int i) {
 
 	char *tokens[50];
 	char command[100];
-	float inc = .039998; //increment used to vary -s option
+	float a = 2.; //start
+	float b = .0001; //end
+	float s = a;
+
+	//calculate what to multiply s by
+	int j;
+
+	for (j=0; j< i; j++) {
+		s = s * exp(log(b/a)/50);
+	}
 
 	//create string
-	sprintf(command, "./mandel -x -.501 -y -.519 -s %f -m 2000 -W 750 -H 750 -o mandel%i.bmp", 2-i*inc, i+1);
+	sprintf(command, "./mandel -x -.501 -y -.519 -s %f -m 2000 -W 750 -H 750 -o mandel%i.bmp", s, i+1);
 
 	//convert string to tokens
 	convert_to_tokens(tokens, command);
