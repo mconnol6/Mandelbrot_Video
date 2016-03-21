@@ -7,6 +7,9 @@
 #include <math.h>
 #include <errno.h>
 #include <string.h>
+#include <pthread.h>
+
+int sum; //data shared by threads
 
 typedef struct {
 	struct bitmap *bm;
@@ -19,7 +22,8 @@ typedef struct {
 
 int iteration_to_color( int i, int max );
 int iterations_at_point( double x, double y, int max );
-void compute_image(thread_args *args);
+void *compute_image(thread_args *args);
+void *runner(void *param);
 
 void show_help()
 {
@@ -53,12 +57,12 @@ int main( int argc, char *argv[] )
 	int    image_width = 500;
 	int    image_height = 500;
 	int    max = 1000;
-	int nthreads = 3;
+	int nthreads = 1;
 
 	// For each command line argument given,
 	// override the appropriate configuration value.
 
-	while((c = getopt(argc,argv,"x:y:s:W:H:m:o:h:n"))!=-1) {
+	while((c = getopt(argc,argv,"x:y:s:W:H:m:o:n:h"))!=-1) {
 		switch(c) {
 			case 'x':
 				xcenter = atof(optarg);
@@ -81,23 +85,32 @@ int main( int argc, char *argv[] )
 			case 'o':
 				outfile = optarg;
 				break;
+			case 'n':
+				nthreads = atoi(optarg);
+				break;
 			case 'h':
 				show_help();
 				exit(1);
-				break;
-			case 'n':
 				break;
 		}
 	}
 
 	// Display the configuration of the image.
-	printf("mandel: x=%lf y=%lf scale=%lf max=%d outfile=%s\n",xcenter,ycenter,scale,max,outfile);
+	printf("mandel: x=%lf y=%lf scale=%lf max=%d outfile=%s threads=%i\n",xcenter,ycenter,scale,max,outfile,nthreads);
 
 	// Create a bitmap of the appropriate size.
 	struct bitmap *bm = bitmap_create(image_width,image_height);
 
 	// Fill it with a dark blue, for debugging
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
+
+	//set up pthreads
+//	pthread_t tid; //thread identifier
+//	pthread_attr_t attr; //set of thread attributes
+//
+//	pthread_attr_init(&attr); //get default attributes
+//	pthread_create(&tid, &attr, runner, nthreads);
+//	pthread_join(tid, NULL);
 
 	// Compute the Mandelbrot image
 	//
@@ -118,7 +131,7 @@ int main( int argc, char *argv[] )
 Compute an entire Mandelbrot image, writing each point to the given bitmap.
 Scale the image to the range (xmin-xmax,ymin-ymax), limiting iterations to "max"
 */
-void compute_image(thread_args *args)
+void *compute_image(thread_args *args)
 {
 	int i,j;
 
@@ -142,6 +155,8 @@ void compute_image(thread_args *args)
 			bitmap_set(args->bm,i,j,iters);
 		}
 	}
+
+	return 0;
 }
 
 /*
@@ -181,7 +196,3 @@ int iteration_to_color( int i, int max )
 	int gray = 255*i/max;
 	return MAKE_RGBA(gray,gray,gray,0);
 }
-
-
-
-
