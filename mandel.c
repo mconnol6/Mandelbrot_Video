@@ -20,8 +20,8 @@ typedef struct {
 
 int iteration_to_color( int i, int max );
 int iterations_at_point( double x, double y, int max );
-void *compute_image(thread_args *args);
-void *runner(void *param);
+void *compute_image(void *args);
+void * say_hi(); 
 
 void show_help()
 {
@@ -116,7 +116,7 @@ int main( int argc, char *argv[] )
 		thr_data[i] = s;
 
 		//create threads and check to see if they were created successfully
-		if (pthread_create(&thr[i], NULL, compute_image, &thr_data[i])) {
+		if (pthread_create(&thr[i], NULL, compute_image, (void *)(&thr_data[i]))) {
 			fprintf(stderr,"mandel: pthread_create: %s\n",strerror(errno));
 			exit(1);
 		}
@@ -140,8 +140,9 @@ int main( int argc, char *argv[] )
 Compute an entire Mandelbrot image, writing each point to the given bitmap.
 Scale the image to the range (xmin-xmax,ymin-ymax), limiting iterations to "max"
 */
-void *compute_image(thread_args *args)
+void * compute_image(void *t)
 {
+	thread_args *args = t;
 	int i,j;
 
 	int width = bitmap_width(args->bm);
