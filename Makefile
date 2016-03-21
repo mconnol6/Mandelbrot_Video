@@ -4,7 +4,7 @@ mandel: mandel.o bitmap.o
 	gcc mandel.o bitmap.o -o mandel -lpthread
 
 mandelmovie: mandelmovie.o
-	gcc mandelmovie.o -o mandelmovie
+	gcc mandelmovie.o -o mandelmovie -lm
 
 mandelmovie.o: mandelmovie.c
 	gcc -Wall -g -c mandelmovie.c -o mandelmovie.o
