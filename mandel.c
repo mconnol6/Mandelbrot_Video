@@ -16,6 +16,8 @@ typedef struct {
    	double ymin;
 	double ymax;
 	int max;
+	int nthreads;
+	int n;
 } thread_args;
 
 int iteration_to_color( int i, int max );
@@ -110,7 +112,7 @@ int main( int argc, char *argv[] )
 	int i; //iterator
 	for (i=0; i<nthreads; i++) {
 		//create struct
-		thread_args s = {bm,xcenter-scale,xcenter+scale,ycenter-scale,ycenter+scale,max};
+		thread_args s = {bm,xcenter-scale,xcenter+scale,ycenter-scale,ycenter+scale,max,nthreads,i};
 
 		//put in data array
 		thr_data[i] = s;
@@ -148,9 +150,10 @@ void * compute_image(void *t)
 	int width = bitmap_width(args->bm);
 	int height = bitmap_height(args->bm);
 
-	// For every pixel in the image...
+	int pixel_size = height / args->nthreads;
 
-	for(j=0;j<height;j++) {
+	// For every pixel in the image...
+	for(j=args->n*pixel_size;j<(args->n+1)*pixel_size;j++) {
 
 		for(i=0;i<width;i++) {
 
